@@ -65,7 +65,7 @@ function install_gradle() {
     mkdir /opt/gradle
     unzip -d /opt/gradle gradle-5.4.1-bin.zip
     echo 'export PATH="$PATH":/opt/gradle/gradle-5.4.1/bin' >> ~/.bashrc
-    source ~/.bashrc
+    export PATH="$PATH":/opt/gradle/gradle-5.4.1/bin
 }
 
 function install_packages() {
@@ -110,9 +110,9 @@ function install_rbenv() {
     # rbenv
     git clone https://github.com/rbenv/rbenv.git ~/.rbenv
     echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
-    source ~/.bashrc
+    export PATH="$HOME/.rbenv/bin:$PATH"
     echo 'eval "$(rbenv init -)"' >> ~/.bashrc
-    source ~/.bashrc
+    eval "$(rbenv init -)"
     rbenv versions
 
     # rbenv-build
@@ -200,7 +200,7 @@ function config_tango() {
     mkdir courselabs
     pip install virtualenv
     echo 'PATH=$PATH:$HOME/.local/bin' >> $HOME/.bashrc
-    source $HOME/.bashrc
+    export PATH=$PATH:$HOME/.local/bin
     virtualenv .
     source bin/activate
     pip install -r requirements.txt
