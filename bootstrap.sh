@@ -55,12 +55,12 @@ END
 END
 }
 
-function teardown() {
+teardown() {
     sudo /bin/rm -f /etc/sudoers.d/$USER
     sudo -k
 }
 
-function change_to_tuna_mirror() {
+change_to_tuna_mirror() {
     wget -O oh-my-tuna.py https://tuna.moe/oh-my-tuna/oh-my-tuna.py
 
     # for Ubuntu apt source
@@ -71,7 +71,7 @@ function change_to_tuna_mirror() {
     log "[1/$TOTAL] mirror has been changed to tuna"
 }
 
-function install_gradle() {
+install_gradle() {
     wget https://services.gradle.org/distributions/gradle-5.4.1-bin.zip
     mkdir /opt/gradle
     unzip -d /opt/gradle gradle-5.4.1-bin.zip
@@ -79,7 +79,7 @@ function install_gradle() {
     export PATH="$PATH":/opt/gradle/gradle-5.4.1/bin
 }
 
-function install_packages() {
+install_packages() {
     # build essentials
     sudo apt-get install -y build-essential git vim curl python-pip curl
     if [[ $? -ne 0 ]]; then
@@ -123,7 +123,7 @@ function install_packages() {
     log "[2/$TOTAL] package installation done"
 }
 
-function install_rbenv() {
+install_rbenv() {
     # maybe use the ruby shipped with Ubuntu?
     # sudo apt-get install -y ruby ruby-bundler ruby-dev
     # rbenv
@@ -144,7 +144,7 @@ function install_rbenv() {
     log "[3/$TOTAL] rbenv installation done"
 }
 
-function clone_sources() {
+clone_sources() {
     # TODO: use github in the future
     
     # Tango
@@ -158,28 +158,28 @@ function clone_sources() {
     log "[4/$TOTAL] Autolab and Tango source code downloaded"
 }
 
-function install_ruby_binary() {
+install_ruby_binary() {
     wget -O /tmp/ruby-2.2.10.tar.bz2 "https://rvm.io/binaries/ubuntu/18.04/x86_64/ruby-2.2.10.tar.bz2"
     tar -xjf /tmp/ruby-2.2.10.tar.bz2 -C ~/.rbenv/versions/
     rbenv local ruby-2.2.10
     rbenv rehash
 }
 
-function install_ruby_compilation() {
+install_ruby_compilation() {
     rbenv install $(cat .ruby-version)
     rbenv rehash
 }
 
-function config_autolab() {
+config_autolab() {
     cd Autolab
     install_ruby_binary
 
     # China mirror
     gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/
-    # sudo gem install --user-install executable-hooks
 
     # bundler
-    yes | gem install bundler -v '<=1.16.0'   # 1.16.0 has been tested, too high wont work
+    # NOTE: bundler 1.16.6 is shipped with 2.2.10 and works
+    # yes | gem install bundler -v '<=1.16.0'   # 1.16.0 has been tested, too high wont work
     rbenv rehash
 
     # other gems
@@ -214,7 +214,7 @@ END
     log "[5/$TOTAL] Autolab configured successfully"
 }
 
-function config_tango() {
+config_tango() {
     cd Tango
     cp config.template.py config.py
     mkdir courselabs
@@ -235,10 +235,10 @@ function config_tango() {
     log "[6/$TOTAL] Tango configured successfully"
 }
 
-function finish() {
+finish() {
     logstdout "Autolab has been successfully set up. To use it:"
     logstdout ""
-    logstdout "0. Log out and log back in so that your group membership is re-evaluated"
+    logstdout "0. Log out and log back in so that your docker group membership is re-evaluated"
     logstdout "1. Start the Autolab server at port 8000"
     logstdout '    `RESTFUL_HOST=localhost RESTFUL_PORT=3000 RESTFUL_KEY=test bundle exec rails s -p 8000`'
     logstdout "2. Source Tango/bin/active and start Tango server at port 3000 by:"
