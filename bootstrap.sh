@@ -63,13 +63,6 @@ function change_to_tuna_mirror() {
     # for Ubuntu apt source
     sudo python3 oh-my-tuna.py -g -y
 
-    # docker source
-    curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
-    sudo add-apt-repository \
-        "deb [arch=amd64] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu \
-        $(lsb_release -cs) \
-        stable"
-
     sudo apt-get update
 
     log "[1/$TOTAL] mirror has been changed to tuna"
@@ -85,7 +78,7 @@ function install_gradle() {
 
 function install_packages() {
     # build essentials
-    sudo apt-get install -y build-essential git vim curl python-pip
+    sudo apt-get install -y build-essential git vim curl python-pip curl
     if [[ $? -ne 0 ]]; then
         fail "apt-get install failed"
     fi
@@ -94,6 +87,13 @@ function install_packages() {
     python3 $HOME/projects/oh-my-tuna.py
 
     # docker, from https://mirrors.tuna.tsinghua.edu.cn/help/docker-ce/
+    # docker source
+    curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository \
+        "deb [arch=amd64] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable"
+
     sudo apt-get remove -y docker docker-engine docker.io
     sudo apt-get install -y apt-transport-https ca-certificates gnupg2 software-properties-common
     sudo apt-get install -y docker-ce
@@ -172,7 +172,7 @@ function config_autolab() {
 
     # China mirror
     gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/
-    sudo gem install --user-install executable-hooks
+    # sudo gem install --user-install executable-hooks
 
     # bundler
     yes | gem install bundler -v '<=1.16.0'   # 1.16.0 has been tested, too high wont work
