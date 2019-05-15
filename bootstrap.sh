@@ -242,7 +242,7 @@ config_tango() {
 finish() {
     logstdout "Autolab has been successfully set up. To use it:"
     logstdout ""
-    logstdout "0. Log out and log back in so that your docker group membership is re-evaluated"
+    logstdout "0. Reboot so that your docker group membership is re-evaluated"
     logstdout "1. Start the Autolab server at port 8000"
     logstdout '    `RESTFUL_HOST=localhost RESTFUL_PORT=3000 RESTFUL_KEY=test bundle exec rails s -p 8000`'
     logstdout "2. Source Tango/bin/active and start Tango server at port 3000 by:"
