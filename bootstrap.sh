@@ -30,19 +30,30 @@ fail() { printf "\n${_red}ERROR: $*${_reset}\n"; printf "\nERROR: $*\n" >> $LOG_
 
 TOTAL=6
 
-function setup() {
+setup() {
+    # create directories
     mkdir -p ~/projects
     cd ~/projects
+
+    # create password-free sudo file
     sudo tee /etc/sudoers.d/$USER <<END
 $USER $(hostname) =(ALL:ALL) NOPASSWD: ALL
 END
+
+    # update hosts file
     sudo tee -a /etc/hosts <<END
 103.121.209.188 fonts.googleapis.com ajax.googleapis.com themes.googleusercontent.com fonts.gstatic.com
 END
+
+    # remove unattended-upgrades package
+    sudo apt remove -y unattended-upgrades
+    if [[ $? -ne 0 ]]; then
+        fail "Cannot remove unattended-upgrades package"
+    fi
 }
 
 function teardown() {
-    sudo /bin/rm /etc/sudoers.d/$USER
+    sudo /bin/rm -f /etc/sudoers.d/$USER
     sudo -k
 }
 
@@ -50,13 +61,16 @@ function change_to_tuna_mirror() {
     wget https://tuna.moe/oh-my-tuna/oh-my-tuna.py
 
     # for Ubuntu apt source
-    sudo apt remove -y unattended-upgrades
     sudo python3 oh-my-tuna.py -g -y
-    sudo apt-get update
 
-    # for pypi
-    mkdir -p $HOME/.config/pip
-    touch $HOME/.config/pip
+    # docker source
+    curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository \
+        "deb [arch=amd64] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable"
+
+    sudo apt-get update
 
     log "[1/$TOTAL] mirror has been changed to tuna"
 }
@@ -82,13 +96,6 @@ function install_packages() {
     # docker, from https://mirrors.tuna.tsinghua.edu.cn/help/docker-ce/
     sudo apt-get remove -y docker docker-engine docker.io
     sudo apt-get install -y apt-transport-https ca-certificates gnupg2 software-properties-common
-    curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
-    sudo apt-get update
-    sudo add-apt-repository \
-        "deb [arch=amd64] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu \
-        $(lsb_release -cs) \
-        stable"
-    sudo apt-get update
     sudo apt-get install -y docker-ce
     pip install docker-compose
 
@@ -163,18 +170,19 @@ function config_autolab() {
 
     # China mirror
     gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/
-    bundle config mirror.https://rubygems.org https://gems.ruby-china.com
+    sudo gem install --user-install executable-hooks
 
     # bundler
-    gem install bundler -v '<=1.16.0'   # 1.16.0 has been tested, too high wont work
+    yes | gem install bundler -v '<=1.16.0'   # 1.16.0 has been tested, too high wont work
     rbenv rehash
 
-    # gems
-    cd bin
+    # other gems
+    # cd bin
+    bundle config mirror.https://rubygems.org https://gems.ruby-china.com
     bundle install
+    # cd ..
 
-    cd ..
-    # TODO: fix temp config
+    # TODO: fix temp database config
     tee config/database.yml <<END
 # SQLite Configuration
 development:
@@ -211,14 +219,22 @@ function config_tango() {
     source bin/activate
     pip install -r requirements.txt
     mkdir volumes
+
+    cd $HOME/projects/Autolab/config/
+    cp autogradeConfig.rb.template autogradeConfig.rb
     log "[6/$TOTAL] Tango configured successfully"
 }
 
 function finish() {
-    logstdout "Autolab has been successfully set up"
-    logstdout 'Run `RESTFUL_HOST=localhost RESTFUL_PORT=3000 RESTFUL_KEY=test bundle exec rails s -p 8000` to start the Autolab server at port 8000'
-    logstdout 'Run `python restful-tango/server.py 3000` to start the Tango server at port 3000'
-    logstdout 'Run `python jobManager.py` to start the Tango consumer'
+    logstdout "Autolab has been successfully set up. To use it:"
+    logstdout ""
+    logstdout "0. Start a new shell to activate your ruby environment"
+    logstdout "1. Start the Autolab server at port 8000"
+    logstdout '    `RESTFUL_HOST=localhost RESTFUL_PORT=3000 RESTFUL_KEY=test bundle exec rails s -p 8000`'
+    logstdout "2. Source Tango/bin/active and start Tango server at port 3000 by:"
+    logstdout '    `python restful-tango/server.py 3000`'
+    logstdout "3. Source Tango/bin/active and start the Tango consumer by:"
+    logstdout '    `python jobManager.py`'
     # logstdout 'Open a terminal and run `` to'
 }
 
