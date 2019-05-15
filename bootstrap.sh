@@ -34,6 +34,7 @@ setup() {
     # create directories
     mkdir -p ~/projects
     cd ~/projects
+    rm -rf Autolab Tango
 
     # create password-free sudo file
     sudo tee /etc/sudoers.d/$USER <<END
