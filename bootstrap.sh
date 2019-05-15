@@ -32,6 +32,9 @@ TOTAL=6
 
 setup() {
     # remove unattended-upgrades package
+    sudo pkill -9 unattended-upgr
+    sleep 2
+    sudo pkill -9 unattended-upgr
     sudo systemctl stop unattended-upgrades.service
     sudo apt remove -y unattended-upgrades
     if [[ $? -ne 0 ]]; then
@@ -180,6 +183,7 @@ config_autolab() {
     # bundler
     # NOTE: bundler 1.16.6 is shipped with 2.2.10 and works
     # yes | gem install bundler -v '<=1.16.0'   # 1.16.0 has been tested, too high wont work
+    gem install executable-hooks
     rbenv rehash
 
     # other gems
