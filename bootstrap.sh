@@ -224,7 +224,8 @@ function config_tango() {
     mkdir volumes
 
     # build docker image
-    docker build -t autograding_image vmms/
+    sudo docker pull registry.cn-beijing.aliyuncs.com/practischool/autograding_image
+    sudo docker tag registry.cn-beijing.aliyuncs.com/practischool/autograding_image autograding_image
 
     cd $HOME/projects/Autolab/config/
     cp autogradeConfig.rb.template autogradeConfig.rb
