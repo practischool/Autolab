@@ -222,6 +222,9 @@ function config_tango() {
     pip install -r requirements.txt
     mkdir volumes
 
+    # build docker image
+    docker build -t autograding_image vmms/
+
     cd $HOME/projects/Autolab/config/
     cp autogradeConfig.rb.template autogradeConfig.rb
     log "[6/$TOTAL] Tango configured successfully"
