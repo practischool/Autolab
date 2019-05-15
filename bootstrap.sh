@@ -97,6 +97,8 @@ function install_packages() {
     sudo apt-get remove -y docker docker-engine docker.io
     sudo apt-get install -y apt-transport-https ca-certificates gnupg2 software-properties-common
     sudo apt-get install -y docker-ce
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
     pip install docker-compose
 
     # database deps
@@ -228,7 +230,7 @@ function config_tango() {
 function finish() {
     logstdout "Autolab has been successfully set up. To use it:"
     logstdout ""
-    logstdout "0. Start a new shell to activate your ruby environment"
+    logstdout "0. Log out and log back in so that your group membership is re-evaluated"
     logstdout "1. Start the Autolab server at port 8000"
     logstdout '    `RESTFUL_HOST=localhost RESTFUL_PORT=3000 RESTFUL_KEY=test bundle exec rails s -p 8000`'
     logstdout "2. Source Tango/bin/active and start Tango server at port 3000 by:"
