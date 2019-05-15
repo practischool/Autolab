@@ -31,6 +31,14 @@ fail() { printf "\n${_red}ERROR: $*${_reset}\n"; printf "\nERROR: $*\n" >> $LOG_
 TOTAL=6
 
 setup() {
+    # remove unattended-upgrades package
+    sudo systemctl stop unattended-upgrades.service
+    sudo apt remove -y unattended-upgrades
+    if [[ $? -ne 0 ]]; then
+        fail "Cannot remove unattended-upgrades package"
+        exit 1
+    fi
+
     # create directories
     mkdir -p ~/projects
     cd ~/projects
@@ -45,12 +53,6 @@ END
     sudo tee -a /etc/hosts <<END
 103.121.209.188 fonts.googleapis.com ajax.googleapis.com themes.googleusercontent.com fonts.gstatic.com
 END
-
-    # remove unattended-upgrades package
-    sudo apt remove -y unattended-upgrades
-    if [[ $? -ne 0 ]]; then
-        fail "Cannot remove unattended-upgrades package"
-    fi
 }
 
 function teardown() {
@@ -59,7 +61,7 @@ function teardown() {
 }
 
 function change_to_tuna_mirror() {
-    wget https://tuna.moe/oh-my-tuna/oh-my-tuna.py
+    wget -O oh-my-tuna.py https://tuna.moe/oh-my-tuna/oh-my-tuna.py
 
     # for Ubuntu apt source
     sudo python3 oh-my-tuna.py -g -y
@@ -82,6 +84,7 @@ function install_packages() {
     sudo apt-get install -y build-essential git vim curl python-pip curl
     if [[ $? -ne 0 ]]; then
         fail "apt-get install failed"
+        exit 1
     fi
 
     # pip is installed, so change pypi source now
