@@ -50,6 +50,7 @@ function change_to_tuna_mirror() {
     wget https://tuna.moe/oh-my-tuna/oh-my-tuna.py
 
     # for Ubuntu apt source
+    sudo apt remove -y unattended-upgrades
     sudo python3 oh-my-tuna.py -g -y
     sudo apt-get update
 
@@ -71,6 +72,11 @@ function install_gradle() {
 function install_packages() {
     # build essentials
     sudo apt-get install -y build-essential git vim curl python-pip
+    if [[ $? -ne 0 ]]; then
+        fail "apt-get install failed"
+    fi
+
+    # pip is installed, so change pypi source now
     python3 $HOME/projects/oh-my-tuna.py
 
     # docker, from https://mirrors.tuna.tsinghua.edu.cn/help/docker-ce/
